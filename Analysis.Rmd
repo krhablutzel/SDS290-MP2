@@ -133,6 +133,13 @@ alt_data %>%
   )
 
 ## check within too just to be sure
+
+alt_data %>%
+  group_by(trial) %>%
+  summarize(
+    mean = mean(happiness),
+    sd = sd(happiness)
+  )
 ```
 
 ```{r}
