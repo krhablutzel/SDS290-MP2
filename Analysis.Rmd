@@ -27,24 +27,22 @@ raw_data <- read_csv("./raw_data.csv")
 ## M - Cleaning data part
 
 cleaned_data <- raw_data %>%
-  select(Consent, Age, Happiness1_1, `Animal-Preference`, Happiness2_1, animal) %>%
-  rename(preferred_animal = `Animal-Preference`) %>%
-  rename(consent = Consent) %>%
-  rename(age = Age) %>%
-  filter(consent == "Yes, I consent" & age == "Yes, I am 18 or older") %>%
-  mutate(happiness_change = as.numeric(Happiness2_1) - as.numeric(Happiness1_1)) %>%
-  select(-consent, -age) %>%
-  mutate(id = row_number()) %>%
+  filter(Consent == "Yes, I consent" & Age == "Yes, I am 18 or older") %>%
+  select(Happiness1_1, `Animal-Preference`, Happiness2_1, animal) %>%
+  rename(preferred_animal = `Animal-Preference`,
+         trial_1 = Happiness1_1,
+         trial_2 = Happiness2_1) %>%
+  mutate(subject_id = as.factor(row_number())) %>% 
+  na.omit() %>% # K, response to M - here's a faster way to remove incomplete cases. We definitely removed that 1 person, and just that 1 person! :)
   
   ## M - BIG NOTE that there was one missing value for the second happiness question, and I removed it here (it was a roundabout way of doing it, I know, but I don't think we'll be graded on that particular point)
   
   ## MAKE sure to report that we deleted the person
   
-  mutate(
-    is_na = is.na(happiness_change)
-  ) %>%
-  filter(is_na == FALSE) %>%
-  select(-is_na)
+# syntax from https://tidyr.tidyverse.org/reference/pivot_longer.html
+  
+  pivot_longer(cols = c(trial_1, trial_2), names_to = "trial", values_to = "happiness") %>%
+  mutate(happiness = as.numeric(happiness))
 ```
 
 ```{r, eval = FALSE}
@@ -55,6 +53,110 @@ write.csv(x = cleaned_data, file = "cleaned_mp2.csv", sep = ",")
 ```
 
 
+## Working with within-subjects var -- trial would be the within-subjects variable here
+
+
+```{r}
+
+## M - SDs in animal/preferred animal groups; SDs in trial/animal/preferred animal groups do in fact meet the same standard deviation assumption
+
+cleaned_data %>%
+  group_by(animal, preferred_animal) %>%
+  summarize(
+    mean = mean(happiness),
+    sd = sd(happiness)
+  )
+
+## check within too just to be sure
+
+cleaned_data %>%
+  group_by(trial) %>%
+  summarize(
+    mean = mean(happiness),
+    sd = sd(happiness)
+  )
+```
+
+```{r}
+## M - basic boxplot with within-subjects var, with data that does not violate assumptions
+
+ggplot(cleaned_data, aes(x = trial, y = happiness, color = preferred_animal)) +
+  geom_boxplot()
+
+ggplot(cleaned_data, aes(x = trial, y = happiness, color = animal)) +
+  geom_boxplot()
+```
+
+```{r}
+## Within-subjects scatterplot
+for_scatterplot <- cleaned_data %>%
+  pivot_wider(names_from = trial, values_from = happiness)
+
+ggplot(data = for_scatterplot, aes(x = trial_1, y = trial_2)) +
+    geom_point()
+```
+
+maybe ANOVA
+
+```{r}
+# ANOVA
+mod <- aov(happiness ~ preferred_animal*animal*trial + Error(subject_id) + preferred_animal*animal, data = cleaned_data)
+
+summary(mod)
+
+# yay, we made people happy!
+```
+
+
+
+# Code Archive
+
+## Working with happiness change, no within-subjects var
+
+
+```{r}
+
+## M - Cleaning data part
+
+cleaned_data <- raw_data %>%
+  select(Consent, Age, Happiness1_1, `Animal-Preference`, Happiness2_1, animal) %>%
+  rename(preferred_animal = `Animal-Preference`,
+         consent = Consent,
+         age = Age) %>%
+  filter(consent == "Yes, I consent" & age == "Yes, I am 18 or older") %>%
+  mutate(happiness_change = as.numeric(Happiness2_1) - as.numeric(Happiness1_1)) %>%
+  select(-consent, -age) %>%
+  mutate(id = as.factor(row_number())) %>%
+  na.omit() # K, response to M - here's a faster way to remove incomplete cases. We definitely removed that 1 person, and just that 1 person! :)
+  
+  ## M - BIG NOTE that there was one missing value for the second happiness question, and I removed it here (it was a roundabout way of doing it, I know, but I don't think we'll be graded on that particular point)
+  
+  ## MAKE sure to report that we deleted the person
+```
+
+```{r, eval = FALSE}
+
+## M - saving clean data for submission purposes
+
+write.csv(x = cleaned_data, file = "cleaned_mp2.csv", sep = ",")
+```
+
+```{r}
+
+## M - putting the data in within subjects var shape w/ pivot
+
+alt_data <- cleaned_data %>%
+  select(-happiness_change) %>%
+  rename(trial_1 = Happiness1_1,
+         trial_2 = Happiness2_1) %>%
+  
+# syntax from https://tidyr.tidyverse.org/reference/pivot_longer.html
+  
+  pivot_longer(cols = c(trial_1, trial_2), names_to = "trial", values_to = "happiness") %>%
+  mutate(happiness = as.numeric(happiness))
+
+```
+
 Michelle's notes, please read
 
 So here's the story folks: I ran the "Working with happiness change, no within-subjects var" section and noticed that the same SD assumption was violated, like, barely, but enough to be a problem. So, I have two alternatives here, pre meeting with Randi. 
@@ -62,8 +164,6 @@ So here's the story folks: I ran the "Working with happiness change, no within-s
 The first is Kathleen's transformation option, which is cool. It does not work to mitigate the S assumption violation. It also makes interpretation kind of seriously funky. 
 
 So, the second option is to use trial as a within-subjects variable. It seems to fix the assumption violation, but of course it also complicates our lives significantly in other ways. 
-
-## Working with happiness change, no within-subjects var
 
 ```{r}
 
@@ -84,6 +184,7 @@ ggplot(cleaned_data, aes(x = animal, y = happiness_change, color = preferred_ani
   geom_boxplot()
 ```
 
+
 ## Kathleen's transformation suggestion to work with happiness_change
 
 ```{r, message = FALSE, warning = FALSE}
@@ -99,77 +200,6 @@ transformed_data %>%
     sd = sd(lhappiness_change)
   )
 ```
-
-
-## Working with within-subjects var -- trial would be the within-subjects variable here
-
-```{r}
-
-## M - putting the data in within subjects var shape w/ pivot
-
-alt_data <- cleaned_data %>%
-  select(-happiness_change) %>%
-  rename(trial_1 = Happiness1_1) %>%
-  rename(trial_2 = Happiness2_1) %>%
-  
-  # syntax from https://tidyr.tidyverse.org/reference/pivot_longer.html
-  
-  pivot_longer(cols = c(trial_1, trial_2), names_to = "trial", values_to = "happiness2") %>%
-  mutate(happiness = as.numeric(happiness2)) %>%
-  select(-happiness2)
-
-```
-
-
-```{r}
-
-## M - SDs in animal/preferred animal groups; SDs in trial/animal/preferred animal groups do in fact meet the same standard deviation assumption
-
-alt_data %>%
-  group_by(animal, preferred_animal) %>%
-  summarize(
-    mean = mean(happiness),
-    sd = sd(happiness)
-  )
-
-## check within too just to be sure
-
-alt_data %>%
-  group_by(trial) %>%
-  summarize(
-    mean = mean(happiness),
-    sd = sd(happiness)
-  )
-```
-
-```{r}
-## M - basic boxplot with within-subjects var, with data that does not violate assumptions
-
-ggplot(alt_data, aes(x = trial, y = happiness, color = preferred_animal)) +
-  geom_boxplot()
-
-ggplot(alt_data, aes(x = trial, y = happiness, color = animal)) +
-  geom_boxplot()
-```
-
-```{r}
-## Within-subjects scatterplot
-for_scatterplot <- alt_data %>%
-  pivot_wider(names_from = trial, values_from = happiness)
-
-ggplot(data = for_scatterplot, aes(x = trial_1, y = trial_2)) +
-    geom_point()
-```
-
-maybe ANOVA
-
-```{r}
-mod <- aov(happiness ~ preferred_animal*animal*trial + Error(as.factor(id)) + preferred_animal*animal, data = alt_data)
-
-summary(mod)
-```
-
-
 
 
 
