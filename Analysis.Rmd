@@ -38,7 +38,7 @@ cleaned_data <- raw_data %>%
   
   ## M - BIG NOTE that there was one missing value for the second happiness question, and I removed it here (it was a roundabout way of doing it, I know, but I don't think we'll be graded on that particular point)
   
-  ## I will talk with Randi about if this is an okay way to handle it, but we will definitely absolutely need to talk about it
+  ## MAKE sure to report that we deleted the person
   
   mutate(
     is_na = is.na(happiness_change)
@@ -132,12 +132,7 @@ alt_data %>%
     sd = sd(happiness)
   )
 
-alt_data %>%
-  group_by(animal, preferred_animal, trial) %>%
-  summarize(
-    mean = mean(happiness),
-    sd = sd(happiness)
-  )
+## check within too just to be sure
 ```
 
 ```{r}
@@ -162,7 +157,7 @@ ggplot(data = for_scatterplot, aes(x = trial_1, y = trial_2)) +
 maybe ANOVA
 
 ```{r}
-mod <- aov(happiness ~ preferred_animal*animal*trial + Error(id) + preferred_animal*animal, data = alt_data)
+mod <- aov(happiness ~ preferred_animal*animal*trial + Error(as.factor(id)) + preferred_animal*animal, data = alt_data)
 
 summary(mod)
 ```
