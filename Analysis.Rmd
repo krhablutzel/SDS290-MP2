@@ -39,7 +39,7 @@ cleaned_data <- raw_data %>%
 ```
 
 ```{r, eval = FALSE}
-write.csv(x = cleaned_data2, file = "cleaned_mp2.csv", sep = ",")
+write.csv(x = cleaned_data, file = "cleaned_mp2.csv", sep = ",")
 ```
 
 ```{r}
