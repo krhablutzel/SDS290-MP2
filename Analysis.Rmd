@@ -1,0 +1,21 @@
+---
+title: "Mini-Project 2"
+author: "Team Hedgehog!"
+date: "2/8/2021"
+output:
+  html_document:
+    theme: journal
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE
+)
+library(tidyverse)
+library(mosaic)
+```
+
+```{r}
+happy <- read_csv("./Data-2-8.csv")
+```
+
