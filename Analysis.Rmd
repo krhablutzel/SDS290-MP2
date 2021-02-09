@@ -77,6 +77,8 @@ cleaned_data %>%
   )
 ```
 
+same sd assumption met
+
 ```{r}
 ## M - basic boxplot with within-subjects var, with data that does not violate assumptions
 
@@ -88,6 +90,26 @@ ggplot(cleaned_data, aes(x = trial, y = happiness, color = animal)) +
 ```
 
 ```{r}
+## Sarah - Basic Boxplot for Trial
+
+ggplot(cleaned_data, aes(x = trial, 
+                         y = happiness)) +
+  geom_boxplot(fill = "seagreen3",
+               color = "grey30") +
+  labs(title = "Cute Animals and Happiness", 
+       x = "Measurement Timeslot", 
+       y = "Level of Happiness") +
+  scale_x_discrete(labels = c('Before',
+                              'After')) +
+  scale_y_continuous(labels = c('0',
+                                '2.5',
+                                '5',
+                                '7.5',
+                                '10'))
+```
+
+
+```{r}
 ## Within-subjects scatterplot
 for_scatterplot <- cleaned_data %>%
   pivot_wider(names_from = trial, values_from = happiness)
@@ -96,6 +118,8 @@ ggplot(data = for_scatterplot, aes(x = trial_1, y = trial_2)) +
     geom_point()
 ```
 
+
+constant effects, additive assumptions met
 maybe ANOVA
 
 ```{r}
@@ -177,7 +201,6 @@ upper <- diff + SE * t_star
 # we are 95% confident that the difference between animals for trial 2 is between lower and upper (-1.053, 1.564)
 # this contains 0!!!
 ```
-
 
 
 # Code Archive
