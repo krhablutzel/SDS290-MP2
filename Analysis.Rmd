@@ -16,6 +16,58 @@ library(mosaic)
 ```
 
 ```{r}
-happy <- read_csv("./Data-2-8.csv")
+raw_data <- read_csv("./raw_data.csv")
+```
+
+```{r}
+cleaned_data <- raw_data %>%
+  select(Consent, Age, Happiness1_1, `Animal-Preference`, Happiness2_1, animal) %>%
+  rename(preferred_animal = `Animal-Preference`) %>%
+  rename(consent = Consent) %>%
+  rename(age = Age) %>%
+  filter(consent == "Yes, I consent" & age == "Yes, I am 18 or older") %>%
+  mutate(happiness_change = as.numeric(Happiness2_1) - as.numeric(Happiness1_1)) %>%
+  select(-consent, -age) %>%
+  
+  ## Note that there was one missing value for the second happiness question, and I removed it here (it was a roundabout way of doing it, I know, but I don't think we'll be graded on that particular point)
+  
+  mutate(
+    is_na = is.na(happiness_change)
+  ) %>%
+  filter(is_na == FALSE) %>%
+  select(-is_na)
+```
+
+```{r, eval = FALSE}
+write.csv(x = cleaned_data2, file = "cleaned_mp2.csv", sep = ",")
+```
+
+```{r}
+cleaned_data %>%
+  group_by(animal, preferred_animal) %>%
+  summarize(
+    mean = mean(happiness_change),
+    sd = sd(happiness_change)
+  )
+```   
+
+```{r}
+ggplot(cleaned_data, aes(x = animal, y = happiness_change, color = preferred_animal)) +
+  geom_boxplot()
+```
+
+
+```{r, message = FALSE, warning = FALSE}
+transformed_data <- cleaned_data %>%
+  mutate(
+    lhappiness_change = log(happiness_change + 10)
+  )
+
+transformed_data %>%
+  group_by(animal, preferred_animal) %>%
+  summarize(
+    mean = mean(lhappiness_change),
+    sd = sd(lhappiness_change)
+  )
 ```
 
