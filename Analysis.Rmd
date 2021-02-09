@@ -88,6 +88,26 @@ ggplot(cleaned_data, aes(x = trial, y = happiness, color = animal)) +
 ```
 
 ```{r}
+## Sarah - Basic Boxplot for Trial
+
+ggplot(cleaned_data, aes(x = trial, 
+                         y = happiness)) +
+  geom_boxplot(fill = "seagreen3",
+               color = "grey30") +
+  labs(title = "Cute Animals and Happiness", 
+       x = "Measurement Timeslot", 
+       y = "Level of Happiness") +
+  scale_x_discrete(labels = c('Before',
+                              'After')) +
+  scale_y_continuous(labels = c('0',
+                                '2.5',
+                                '5',
+                                '7.5',
+                                '10'))
+```
+
+
+```{r}
 ## Within-subjects scatterplot
 for_scatterplot <- cleaned_data %>%
   pivot_wider(names_from = trial, values_from = happiness)
