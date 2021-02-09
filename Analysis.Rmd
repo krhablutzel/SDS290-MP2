@@ -77,6 +77,8 @@ cleaned_data %>%
   )
 ```
 
+same sd assumption met
+
 ```{r}
 ## M - basic boxplot with within-subjects var, with data that does not violate assumptions
 
@@ -116,6 +118,8 @@ ggplot(data = for_scatterplot, aes(x = trial_1, y = trial_2)) +
     geom_point()
 ```
 
+
+constant effects, additive assumptions met
 maybe ANOVA
 
 ```{r}
@@ -126,7 +130,6 @@ summary(mod)
 
 # yay, we made people happy!
 ```
-
 
 
 # Code Archive
