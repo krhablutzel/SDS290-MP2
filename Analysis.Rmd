@@ -107,6 +107,77 @@ summary(mod)
 # yay, we made people happy!
 ```
 
+## effect sizes
+
+Overall variance explained by factor of interest: eta^2
+
+$$\eta^2 = \frac{MS_{treatment}}{MS_{total}}$$
+```{r}
+# trial
+# etasq <- 6.638 / 
+# what is MSTotal?
+```
+
+
+## confidence intervals
+
+alpha = 0.05 level
+
+```{r}
+# confidence interval
+# compare trials (within-blocks)
+# happiness 1 vs happiness 2
+stats <- favstats(happiness ~ trial, data = cleaned_data)[,c(1,7,9)]
+# diff of means
+diff <- stats[1,2] - stats[2,2]
+# use counts in leverage
+n1 <- stats[1, 3]
+n2 <- stats[2, 3]
+leverage <- sqrt((1/n1)+1/n2)
+# within-blocks error is MS_Res - fill by hand for simplicity
+MSError <- 0.268
+SE <- leverage * MSError
+
+# df from error term
+df <- 122
+t_star <- qt(0.95, df, lower.tail = TRUE)
+
+# confidence interval
+lower <- diff - SE * t_star
+upper <- diff + SE * t_star
+
+# we are 95% confident that the difference between trial 1 and trial 2 is between lower and upper (-0.381, -0.269)
+```
+
+
+```{r}
+# confidence interval
+# compare cats and hedgehogs for trial 2
+stats <- favstats(happiness ~ trial + animal, data = cleaned_data)[,c(1,7,9)]
+# diff of means
+diff <- stats[2,2] - stats[4,2]
+# use counts in leverage
+n1 <- stats[2, 3]
+n2 <- stats[4, 3]
+leverage <- sqrt((1/n1)+1/n2)
+
+# MSPooled
+# sum of error SSs / sum of error dfs
+MSError <- (1049.3 + 32.64) / (122 + 122)
+SE <- leverage * MSError
+
+# df is (sum of error SSs)^2/sum of (sS^2/df)
+df <- (1049.3 + 32.64)^2 / (((1049.3^2)/122) + ((32.64^2)/122))
+t_star <- qt(0.95, df, lower.tail = TRUE)
+
+# confidence interval
+lower <- diff - SE * t_star
+upper <- diff + SE * t_star
+
+# we are 95% confident that the difference between animals for trial 2 is between lower and upper (-1.053, 1.564)
+# this contains 0!!!
+```
+
 
 
 # Code Archive
