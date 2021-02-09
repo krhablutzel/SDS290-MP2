@@ -159,10 +159,10 @@ ggplot(data = for_scatterplot, aes(x = trial_1, y = trial_2)) +
     geom_point()
 ```
 
-???
+maybe ANOVA
 
 ```{r}
-mod <- aov(happiness ~ preferred_animal*animal*trial + Error(id), data = alt_data)
+mod <- aov(happiness ~ preferred_animal*animal*trial + Error(id) + preferred_animal*animal, data = alt_data)
 
 summary(mod)
 ```
