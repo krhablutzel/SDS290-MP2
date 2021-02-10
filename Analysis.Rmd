@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
 )
 library(tidyverse)
 library(mosaic)
+library(dae)
 ```
 
 ```{r}
@@ -178,12 +179,12 @@ ggplot(cleaned_data, aes(x = trial,
                          color = preferred_animal)) +
   geom_boxplot() +
   facet_wrap(~animal,
-             labeller = labeller(animal = c("cat" = "Cat Photo Presented",
-                                            "hedgehog" = "Hedgehog Photo Presented"))) +
-  labs(title = "Happiness by Animal Presented, Time \nMeasurement, and Animal Preference", 
+             labeller = labeller(animal = c("cat" = "Cat Photo",
+                                            "hedgehog" = "Hedgehog Photo"))) +
+  labs(title = "Happiness by Animal Presented, \nTime Measurement, \nand Animal Preference", 
        x = "Time Measurement", 
        y = "Level of Happiness",
-       color = "Animal Preference") +
+       color = "Animal \nPreference") +
   scale_x_discrete(labels = c('Before',
                               'After')) +
   scale_y_continuous(labels = c('0',
@@ -202,7 +203,9 @@ for_scatterplot <- cleaned_data %>%
   pivot_wider(names_from = trial, values_from = happiness)
 
 ggplot(data = for_scatterplot, aes(x = trial_1, y = trial_2)) +
-    geom_point()
+    geom_point() +
+  scale_x_continuous("Happiness Before Image") +
+  scale_y_continuous("Happiness After Image")
 ```
 
 
@@ -221,12 +224,16 @@ summary(mod)
 
 ```{r}
 cleaned_data <- cleaned_data %>%
-  mutate(fitted = fitted(mod), 
-         residuals = residuals(mod))
+  mutate(residuals = residuals(mod),
+         fitted = fitted(mod))
 
-ggplot(cleaned_data, aes(x = fitted, residuals)) +
+ggplot(cleaned_data, aes(x = fitted, y = residuals)) +
   geom_point() +
   geom_hline(yintercept = 0, color = "red")
+
+
+ggplot(cleaned_data, aes(x = residuals)) +
+  geom_histogram(binwidth = .25)
 ```
 
 
@@ -339,7 +346,7 @@ upper <- diff + SE * t_star
 
 ## M - Cleaning data part
 
-cleaned_data <- raw_data %>%
+cleaned_data2 <- raw_data %>%
   select(Consent, Age, Happiness1_1, `Animal-Preference`, Happiness2_1, animal) %>%
   rename(preferred_animal = `Animal-Preference`,
          consent = Consent,
@@ -359,14 +366,14 @@ cleaned_data <- raw_data %>%
 
 ## M - saving clean data for submission purposes
 
-write.csv(x = cleaned_data, file = "cleaned_mp2.csv", sep = ",")
+write.csv(x = cleaned_data2, file = "cleaned_mp2.csv", sep = ",")
 ```
 
 ```{r}
 
 ## M - putting the data in within subjects var shape w/ pivot
 
-alt_data <- cleaned_data %>%
+alt_data <- cleaned_data2 %>%
   select(-happiness_change) %>%
   rename(trial_1 = Happiness1_1,
          trial_2 = Happiness2_1) %>%
@@ -390,7 +397,7 @@ So, the second option is to use trial as a within-subjects variable. It seems to
 
 ## M - finding the standard deviations of all groups for happiness_change version
 
-cleaned_data %>%
+cleaned_data2 %>%
   group_by(animal, preferred_animal) %>%
   summarize(
     mean = mean(happiness_change),
@@ -401,7 +408,7 @@ cleaned_data %>%
 ```{r}
 ## M - basic boxplot with happiness_change, no within-subjects var, with data that violates assumptions
 
-ggplot(cleaned_data, aes(x = animal, y = happiness_change, color = preferred_animal)) +
+ggplot(cleaned_data2, aes(x = animal, y = happiness_change, color = preferred_animal)) +
   geom_boxplot()
 ```
 
@@ -409,7 +416,7 @@ ggplot(cleaned_data, aes(x = animal, y = happiness_change, color = preferred_ani
 ## Kathleen's transformation suggestion to work with happiness_change
 
 ```{r, message = FALSE, warning = FALSE}
-transformed_data <- cleaned_data %>%
+transformed_data <- cleaned_data2 %>%
   mutate(
     lhappiness_change = log(happiness_change + 10)
   )
