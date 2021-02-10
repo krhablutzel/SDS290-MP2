@@ -178,12 +178,12 @@ ggplot(cleaned_data, aes(x = trial,
                          color = preferred_animal)) +
   geom_boxplot() +
   facet_wrap(~animal,
-             labeller = labeller(animal = c("cat" = "Cat Photo Presented",
-                                            "hedgehog" = "Hedgehog Photo Presented"))) +
-  labs(title = "Happiness by Animal Presented, Time \nMeasurement, and Animal Preference", 
+             labeller = labeller(animal = c("cat" = "Cat Photo",
+                                            "hedgehog" = "Hedgehog Photo"))) +
+  labs(title = "Happiness by Animal Presented, \nTime Measurement, \nand Animal Preference", 
        x = "Time Measurement", 
        y = "Level of Happiness",
-       color = "Animal Preference") +
+       color = "Animal \nPreference") +
   scale_x_discrete(labels = c('Before',
                               'After')) +
   scale_y_continuous(labels = c('0',
