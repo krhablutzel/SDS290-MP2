@@ -218,6 +218,18 @@ summary(mod)
 # yay, we made people happy!
 ```
 
+
+```{r}
+cleaned_data <- cleaned_data %>%
+  mutate(fitted = fitted(mod), 
+         residuals = residuals(mod))
+
+ggplot(cleaned_data, aes(x = fitted, residuals)) +
+  geom_point() +
+  geom_hline(yintercept = 0, color = "red")
+```
+
+
 ## effect sizes
 
 Overall variance explained by factor of interest: eta^2
