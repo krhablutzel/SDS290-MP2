@@ -236,7 +236,7 @@ Overall variance explained by factor of interest: eta^2
 
 $$\eta^2 = \frac{MS_{treatment}}{MS_{total}}$$
 ```{r}
-# trial
+# just do trial
 # etasq <- 6.638 / 
 # what is MSTotal?
 ```
