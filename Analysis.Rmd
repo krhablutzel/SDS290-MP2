@@ -18,7 +18,7 @@ library(dae)
 
 ```{r}
 
-## M -- taking in raw data, this is updated as of feb 9th at 7:30 am ish
+## M -- taking in raw data, this is updated as of feb 10th at 4:30 pm ish
 
 raw_data <- read_csv("./raw_data.csv")
 ```
