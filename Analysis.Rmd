@@ -202,7 +202,9 @@ for_scatterplot <- cleaned_data %>%
   pivot_wider(names_from = trial, values_from = happiness)
 
 ggplot(data = for_scatterplot, aes(x = trial_1, y = trial_2)) +
-    geom_point()
+    geom_point() +
+  scale_x_continuous("Happiness Before Image") +
+  scale_y_continuous("Happiness After Image")
 ```
 
 
@@ -213,7 +215,9 @@ maybe ANOVA
 # ANOVA
 mod <- aov(happiness ~ preferred_animal*animal*trial + Error(subject_id) + preferred_animal*animal, data = cleaned_data)
 
-summary(mod)
+summary(mod_anova)
+
+mod$residuals
 
 # yay, we made people happy!
 ```
@@ -221,8 +225,8 @@ summary(mod)
 
 ```{r}
 cleaned_data <- cleaned_data %>%
-  mutate(fitted = fitted(mod), 
-         residuals = residuals(mod))
+  mutate(residuals = mod$residuals,
+         fitted = mod$fitted)
 
 ggplot(cleaned_data, aes(x = fitted, residuals)) +
   geom_point() +
