@@ -56,6 +56,15 @@ write.csv(x = cleaned_data, file = "cleaned_mp2.csv", sep = ",")
 
 ## Working with within-subjects var -- trial would be the within-subjects variable here
 
+```{r}
+## K - tally responses in each group
+tally(~ animal|trial, data = cleaned_data)
+tally(~ preferred_animal|trial, data = cleaned_data)
+tally(~ animal|preferred_animal, data = cleaned_data) # these #s are doubled
+# looks like we have a lot more cat-lovers
+```
+
+
 
 ```{r}
 
@@ -244,8 +253,12 @@ Overall variance explained by factor of interest: eta^2
 $$\eta^2 = \frac{MS_{treatment}}{MS_{total}}$$
 ```{r}
 # just do trial
-# etasq <- 6.638 / 
+eta_squared <- 7.001 / 58.919
+
+eta_squared
 # MSTotal is sum of all MSs
+# 0.1188241
+# how to interpret this?
 ```
 
 
@@ -265,18 +278,21 @@ n1 <- stats[1, 3]
 n2 <- stats[2, 3]
 leverage <- sqrt((1/n1)+1/n2)
 # within-blocks error is MS_Res - fill by hand for simplicity
-MSError <- 0.268
+MSError <- 0.267
 SE <- leverage * MSError
 
 # df from error term
-df <- 122
+df <- 125
 t_star <- qt(0.95, df, lower.tail = TRUE)
 
 # confidence interval
 lower <- diff - SE * t_star
 upper <- diff + SE * t_star
 
-# we are 95% confident that the difference between trial 1 and trial 2 is between lower and upper (-0.381, -0.269)
+lower
+upper
+
+# we are 95% confident that the difference between trial 1 and trial 2 is between lower and upper (-0.385, -0.274)
 ```
 
 
@@ -293,26 +309,32 @@ leverage <- sqrt((1/n1)+1/n2)
 
 # MSPooled
 # sum of error SSs / sum of error dfs
-MSError <- (1049.3 + 32.64) / (122 + 122)
+SSRes <- 33.32
+SSBlocks <- 1092.0
+dfRes <- 125
+dfBlocks <- 125
+MSError <- (SSBlocks + SSRes) / (dfBlocks + dfRes)
 SE <- leverage * MSError
 
 # df is (sum of error SSs)^2/sum of (sS^2/df)
-df <- (1049.3 + 32.64)^2 / (((1049.3^2)/122) + ((32.64^2)/122))
+df <- (SSBlocks + SSRes)^2 / (((SSBlocks^2)/dfBlocks) + ((SSRes^2)/dfRes))
 t_star <- qt(0.95, df, lower.tail = TRUE)
 
 # confidence interval
 lower <- diff - SE * t_star
 upper <- diff + SE * t_star
 
-# we are 95% confident that the difference between animals for trial 2 is between lower and upper (-1.053, 1.564)
+lower
+upper
+
+# we are 95% confident that the difference between animals for trial 2 is between lower and upper (-1.059, 1.567)
 # this contains 0!!!
 ```
-
 
 ```{r}
 # confidence interval
 # compare animal preferences for trial 2
-stats <- favstats(happiness ~ trial + animal_preference, data = cleaned_data)[,c(1,7,9)]
+stats <- favstats(happiness ~ trial + preferred_animal, data = cleaned_data)[,c(1,7,9)]
 # diff of means
 diff <- stats[2,2] - stats[4,2]
 # use counts in leverage
@@ -322,18 +344,25 @@ leverage <- sqrt((1/n1)+1/n2)
 
 # MSPooled
 # sum of error SSs / sum of error dfs
-MSError <- (1049.3 + 32.64) / (122 + 122)
+SSRes <- 33.32
+SSBlocks <- 1092.0
+dfRes <- 125
+dfBlocks <- 125
+MSError <- (SSBlocks + SSRes) / (dfBlocks + dfRes)
 SE <- leverage * MSError
 
 # df is (sum of error SSs)^2/sum of (sS^2/df)
-df <- (1049.3 + 32.64)^2 / (((1049.3^2)/122) + ((32.64^2)/122))
+df <- (SSBlocks + SSRes)^2 / (((SSBlocks^2)/dfBlocks) + ((SSRes^2)/dfRes))
 t_star <- qt(0.95, df, lower.tail = TRUE)
 
 # confidence interval
 lower <- diff - SE * t_star
 upper <- diff + SE * t_star
 
-# we are 95% confident that the difference between animals for trial 2 is between lower and upper (-1.053, 1.564)
+lower
+upper
+
+# we are 95% confident that the difference between animals for trial 2 is between lower and upper (-2.035, 0.974)
 # this contains 0!!!
 ```
 
