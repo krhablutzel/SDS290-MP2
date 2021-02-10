@@ -108,6 +108,93 @@ ggplot(cleaned_data, aes(x = trial,
                                 '10'))
 ```
 
+```{r}
+# S - Boxplot 1
+ggplot(cleaned_data, aes(x = animal, 
+                         y = happiness, 
+                         color = preferred_animal)) +
+  geom_boxplot() +
+  labs(title = "Happiness by Animal Presented \nand Animal Preference", 
+       x = "Animal Presented", 
+       y = "Level of Happiness",
+       color = "Animal Preference") +
+  scale_x_discrete(labels = c('Cat',
+                              'Hedgehog')) +
+  scale_y_continuous(labels = c('0',
+                                '2.5',
+                                '5',
+                                '7.5',
+                                '10')) +
+  scale_color_manual(values=c("seagreen3",
+                             "grey30"))
+```
+
+```{r}
+# S - Boxplot 2
+ggplot(cleaned_data, aes(x = trial, 
+                         y = happiness, 
+                         color = preferred_animal)) +
+  geom_boxplot() +
+  labs(title = "Happiness by Time Measurement \nand Animal Preference", 
+       x = "Time Measurement", 
+       y = "Level of Happiness",
+       color = "Animal Preference") +
+  scale_x_discrete(labels = c('Before',
+                              'After')) +
+  scale_y_continuous(labels = c('0',
+                                '2.5',
+                                '5',
+                                '7.5',
+                                '10')) +
+  scale_color_manual(values=c("seagreen3",
+                             "grey30"))
+```
+
+```{r}
+# S - Boxplot 3
+ggplot(cleaned_data, aes(x = trial, 
+                         y = happiness, 
+                         color = animal)) +
+  geom_boxplot() +
+  labs(title = "Happiness by Time Measurement \nand Animal Presented", 
+       x = "Time Measurement", 
+       y = "Level of Happiness",
+       color = "Animal Presented") +
+  scale_x_discrete(labels = c('Before',
+                              'After')) +
+  scale_y_continuous(labels = c('0',
+                                '2.5',
+                                '5',
+                                '7.5',
+                                '10')) +
+  scale_color_manual(values=c("seagreen3",
+                             "grey30"))
+```
+
+```{r}
+# S - Boxplot 4 w/Facet
+ggplot(cleaned_data, aes(x = trial, 
+                         y = happiness, 
+                         color = preferred_animal)) +
+  geom_boxplot() +
+  facet_wrap(~animal,
+             labeller = labeller(animal = c("cat" = "Cat Photo Presented",
+                                            "hedgehog" = "Hedgehog Photo Presented"))) +
+  labs(title = "Happiness by Animal Presented, Time \nMeasurement, and Animal Preference", 
+       x = "Time Measurement", 
+       y = "Level of Happiness",
+       color = "Animal Preference") +
+  scale_x_discrete(labels = c('Before',
+                              'After')) +
+  scale_y_continuous(labels = c('0',
+                                '2.5',
+                                '5',
+                                '7.5',
+                                '10')) +
+  scale_color_manual(values=c("seagreen3",
+                             "grey30"))
+```
+
 
 ```{r}
 ## Within-subjects scatterplot
@@ -130,6 +217,18 @@ summary(mod)
 
 # yay, we made people happy!
 ```
+
+
+```{r}
+cleaned_data <- cleaned_data %>%
+  mutate(fitted = fitted(mod), 
+         residuals = residuals(mod))
+
+ggplot(cleaned_data, aes(x = fitted, residuals)) +
+  geom_point() +
+  geom_hline(yintercept = 0, color = "red")
+```
+
 
 ## effect sizes
 
