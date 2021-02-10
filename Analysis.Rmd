@@ -238,7 +238,7 @@ $$\eta^2 = \frac{MS_{treatment}}{MS_{total}}$$
 ```{r}
 # just do trial
 # etasq <- 6.638 / 
-# what is MSTotal?
+# MSTotal is sum of all MSs
 ```
 
 
@@ -301,6 +301,34 @@ upper <- diff + SE * t_star
 # this contains 0!!!
 ```
 
+
+```{r}
+# confidence interval
+# compare animal preferences for trial 2
+stats <- favstats(happiness ~ trial + animal_preference, data = cleaned_data)[,c(1,7,9)]
+# diff of means
+diff <- stats[2,2] - stats[4,2]
+# use counts in leverage
+n1 <- stats[2, 3]
+n2 <- stats[4, 3]
+leverage <- sqrt((1/n1)+1/n2)
+
+# MSPooled
+# sum of error SSs / sum of error dfs
+MSError <- (1049.3 + 32.64) / (122 + 122)
+SE <- leverage * MSError
+
+# df is (sum of error SSs)^2/sum of (sS^2/df)
+df <- (1049.3 + 32.64)^2 / (((1049.3^2)/122) + ((32.64^2)/122))
+t_star <- qt(0.95, df, lower.tail = TRUE)
+
+# confidence interval
+lower <- diff - SE * t_star
+upper <- diff + SE * t_star
+
+# we are 95% confident that the difference between animals for trial 2 is between lower and upper (-1.053, 1.564)
+# this contains 0!!!
+```
 
 # Code Archive
 
