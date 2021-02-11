@@ -34,14 +34,8 @@ cleaned_data <- raw_data %>%
          trial_1 = Happiness1_1,
          trial_2 = Happiness2_1) %>%
   mutate(subject_id = as.factor(row_number())) %>% 
-  na.omit() %>% # K, response to M - here's a faster way to remove incomplete cases. We definitely removed that 1 person, and just that 1 person! :)
-  
-  ## M - BIG NOTE that there was one missing value for the second happiness question, and I removed it here (it was a roundabout way of doing it, I know, but I don't think we'll be graded on that particular point)
-  
-  ## MAKE sure to report that we deleted the person
-  
+  na.omit() %>%
 # syntax from https://tidyr.tidyverse.org/reference/pivot_longer.html
-  
   pivot_longer(cols = c(trial_1, trial_2), names_to = "trial", values_to = "happiness") %>%
   mutate(happiness = as.numeric(happiness))
 ```
@@ -232,6 +226,7 @@ summary(mod)
 
 
 ```{r}
+# M
 cleaned_data <- cleaned_data %>%
   mutate(residuals = residuals(mod),
          fitted = fitted(mod))
@@ -252,6 +247,7 @@ Overall variance explained by factor of interest: eta^2
 
 $$\eta^2 = \frac{MS_{treatment}}{MS_{total}}$$
 ```{r}
+# K
 # just do trial
 eta_squared <- 7.001 / 58.919
 
@@ -267,6 +263,7 @@ eta_squared
 alpha = 0.05 level
 
 ```{r}
+# K
 # confidence interval
 # compare trials (within-blocks)
 # happiness 1 vs happiness 2
@@ -295,8 +292,10 @@ upper
 # we are 95% confident that the difference between trial 1 and trial 2 is between lower and upper (-0.385, -0.274)
 ```
 
+Other confidence intervals, just to show we know how :)
 
 ```{r}
+# K
 # confidence interval
 # compare cats and hedgehogs for trial 2
 stats <- favstats(happiness ~ trial + animal, data = cleaned_data)[,c(1,7,9)]
@@ -332,6 +331,7 @@ upper
 ```
 
 ```{r}
+# K
 # confidence interval
 # compare animal preferences for trial 2
 stats <- favstats(happiness ~ trial + preferred_animal, data = cleaned_data)[,c(1,7,9)]
@@ -365,98 +365,3 @@ upper
 # we are 95% confident that the difference between animals for trial 2 is between lower and upper (-2.035, 0.974)
 # this contains 0!!!
 ```
-
-# Code Archive
-
-## Working with happiness change, no within-subjects var
-
-
-```{r}
-
-## M - Cleaning data part
-
-cleaned_data2 <- raw_data %>%
-  select(Consent, Age, Happiness1_1, `Animal-Preference`, Happiness2_1, animal) %>%
-  rename(preferred_animal = `Animal-Preference`,
-         consent = Consent,
-         age = Age) %>%
-  filter(consent == "Yes, I consent" & age == "Yes, I am 18 or older") %>%
-  mutate(happiness_change = as.numeric(Happiness2_1) - as.numeric(Happiness1_1)) %>%
-  select(-consent, -age) %>%
-  mutate(id = as.factor(row_number())) %>%
-  na.omit() # K, response to M - here's a faster way to remove incomplete cases. We definitely removed that 1 person, and just that 1 person! :)
-  
-  ## M - BIG NOTE that there was one missing value for the second happiness question, and I removed it here (it was a roundabout way of doing it, I know, but I don't think we'll be graded on that particular point)
-  
-  ## MAKE sure to report that we deleted the person
-```
-
-```{r, eval = FALSE}
-
-## M - saving clean data for submission purposes
-
-write.csv(x = cleaned_data2, file = "cleaned_mp2.csv", sep = ",")
-```
-
-```{r}
-
-## M - putting the data in within subjects var shape w/ pivot
-
-alt_data <- cleaned_data2 %>%
-  select(-happiness_change) %>%
-  rename(trial_1 = Happiness1_1,
-         trial_2 = Happiness2_1) %>%
-  
-# syntax from https://tidyr.tidyverse.org/reference/pivot_longer.html
-  
-  pivot_longer(cols = c(trial_1, trial_2), names_to = "trial", values_to = "happiness") %>%
-  mutate(happiness = as.numeric(happiness))
-
-```
-
-Michelle's notes, please read
-
-So here's the story folks: I ran the "Working with happiness change, no within-subjects var" section and noticed that the same SD assumption was violated, like, barely, but enough to be a problem. So, I have two alternatives here, pre meeting with Randi. 
-
-The first is Kathleen's transformation option, which is cool. It does not work to mitigate the S assumption violation. It also makes interpretation kind of seriously funky. 
-
-So, the second option is to use trial as a within-subjects variable. It seems to fix the assumption violation, but of course it also complicates our lives significantly in other ways. 
-
-```{r}
-
-## M - finding the standard deviations of all groups for happiness_change version
-
-cleaned_data2 %>%
-  group_by(animal, preferred_animal) %>%
-  summarize(
-    mean = mean(happiness_change),
-    sd = sd(happiness_change)
-  )
-```   
-
-```{r}
-## M - basic boxplot with happiness_change, no within-subjects var, with data that violates assumptions
-
-ggplot(cleaned_data2, aes(x = animal, y = happiness_change, color = preferred_animal)) +
-  geom_boxplot()
-```
-
-
-## Kathleen's transformation suggestion to work with happiness_change
-
-```{r, message = FALSE, warning = FALSE}
-transformed_data <- cleaned_data2 %>%
-  mutate(
-    lhappiness_change = log(happiness_change + 10)
-  )
-
-transformed_data %>%
-  group_by(animal, preferred_animal) %>%
-  summarize(
-    mean = mean(lhappiness_change),
-    sd = sd(lhappiness_change)
-  )
-```
-
-
-
