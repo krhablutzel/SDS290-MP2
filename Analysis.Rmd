@@ -272,10 +272,10 @@ alpha = 0.05 level
 # happiness 1 vs happiness 2
 stats <- favstats(happiness ~ trial, data = cleaned_data)[,c(1,7,9)]
 # diff of means
-diff <- stats[1,2] - stats[2,2]
+diff <- stats[2,2] - stats[1,2]
 # use counts in leverage
-n1 <- stats[1, 3]
-n2 <- stats[2, 3]
+n1 <- stats[2, 3]
+n2 <- stats[1, 3]
 leverage <- sqrt((1/n1)+1/n2)
 # within-blocks error is MS_Res - fill by hand for simplicity
 MSError <- 0.267
